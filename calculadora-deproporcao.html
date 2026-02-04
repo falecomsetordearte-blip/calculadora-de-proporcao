@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Proporção (cm)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        p.subtitle {
+            color: #777;
+            font-size: 14px;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .field {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 85%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s;
+            /* Remove setinhas de número em alguns browsers para ficar mais limpo */
+            -moz-appearance: textfield; 
+        }
+        
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .divider {
+            margin: 25px 0;
+            border-top: 1px dashed #ccc;
+            position: relative;
+        }
+
+        .divider span {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 0 10px;
+            color: #999;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-reset {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-reset:hover {
+            background-color: #d93636;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Calculadora de Escala</h2>
+        <p class="subtitle">Unidade: Centímetros (cm)</p>
+
+        <!-- Tamanho Original -->
+        <div class="input-group">
+            <div class="field">
+                <label for="w1">Largura Atual (cm)</label>
+                <!-- step="any" permite decimais -->
+                <input type="number" id="w1" step="any" placeholder="Ex: 21" oninput="calcular('orig')">
+            </div>
+            <div class="field">
+                <label for="h1">Altura Atual (cm)</label>
+                <input type="number" id="h1" step="any" placeholder="Ex: 29.7" oninput="calcular('orig')">
+            </div>
+        </div>
+
+        <div class="divider">
+            <span>Converter Para</span>
+        </div>
+
+        <!-- Novo Tamanho -->
+        <div class="input-group">
+            <div class="field">
+                <label for="w2">Nova Largura (cm)</label>
+                <input type="number" id="w2" step="any" placeholder="..." oninput="calcular('w2')">
+            </div>
+            <div class="field">
+                <label for="h2">Nova Altura (cm)</label>
+                <input type="number" id="h2" step="any" placeholder="..." oninput="calcular('h2')">
+            </div>
+        </div>
+
+        <button class="btn-reset" onclick="limpar()">Limpar Dados</button>
+    </div>
+
+    <script>
+        function calcular(origem) {
+            // Pegar os valores dos inputs e converter para Float (decimal)
+            const w1 = parseFloat(document.getElementById('w1').value);
+            const h1 = parseFloat(document.getElementById('h1').value);
+            const w2Input = document.getElementById('w2');
+            const h2Input = document.getElementById('h2');
+            
+            // Se não tivermos as medidas originais completas, para a execução
+            if (!w1 || !h1) return;
+
+            // Regra de três simples
+            
+            if (origem === 'w2') {
+                // Se digitou a Nova LARGURA, calcula a Nova ALTURA
+                const w2 = parseFloat(w2Input.value);
+                if (!isNaN(w2)) {
+                    let resultado = (w2 * h1) / w1;
+                    // Fixar em no máximo 2 casas decimais para medidas em cm (ex: 10.55)
+                    // Se for inteiro, mostra inteiro. Se for decimal, mostra até 2 casas.
+                    h2Input.value = Number.isInteger(resultado) ? resultado : parseFloat(resultado.toFixed(2));
+                } else {
+                    h2Input.value = '';
+                }
+            } 
+            else if (origem === 'h2') {
+                // Se digitou a Nova ALTURA, calcula a Nova LARGURA
+                const h2 = parseFloat(h2Input.value);
+                if (!isNaN(h2)) {
+                    let resultado = (h2 * w1) / h1;
+                    w2Input.value = Number.isInteger(resultado) ? resultado : parseFloat(resultado.toFixed(2));
+                } else {
+                    w2Input.value = '';
+                }
+            }
+            else if (origem === 'orig') {
+                // Se o usuário mudou o tamanho original, atualiza o cálculo da parte de baixo
+                if (w2Input.value) {
+                    calcular('w2');
+                } else if (h2Input.value) {
+                    calcular('h2');
+                }
+            }
+        }
+
+        function limpar() {
+            document.getElementById('w1').value = '';
+            document.getElementById('h1').value = '';
+            document.getElementById('w2').value = '';
+            document.getElementById('h2').value = '';
+        }
+    </script>
+
+</body>
+</html>
